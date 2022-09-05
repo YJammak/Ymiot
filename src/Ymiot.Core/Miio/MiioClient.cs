@@ -150,13 +150,9 @@ public class MiioClient
         string nonce)
     {
         var path = url;
-        if (url.StartsWith("https://"))
-            path = url[8..];
-        else if (url.StartsWith("http://"))
-            path = url[7..];
-
-        if (path[..5] == "/app/")
-            path = path[4..];
+        var index = path!.IndexOf("/app/", StringComparison.CurrentCulture);
+        if (index >= 0)
+            path = path[(index + 4)..];
 
         var arr = new List<string> { method.ToUpper(), path };
         foreach (var (key, value) in data)
@@ -303,7 +299,7 @@ public class MiioClient
         request.AddOrUpdateHeader("MIOT-ENCRYPT-ALGORITHM", "ENCRYPT-RC4");
         request.AddOrUpdateHeader("Accept-Encoding", "identity");
 
-        parameters = GetRc4Params(method, api, parameters);
+        parameters = GetRc4Params(method, request.Resource, parameters);
         AddParameters(request, parameters);
 
         var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, parameters["_nonce"].ToString());
@@ -350,7 +346,7 @@ public class MiioClient
     {
         var nonce = GenerateNonce();
         var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, nonce);
-        parameters["rc4_hash__"] = Sha1Sign(method, url, parameters, nonce);
+        parameters["rc4_hash__"] = Sha1Sign(method, url, parameters, signedNonce);
         foreach (var (key, value) in parameters)
         {
             parameters[key] = EncryptData(signedNonce, value.ToString());
@@ -376,8 +372,6 @@ public class MiioClient
                 getVirtualModel = false,
                 getHuamiDevices = 0
             },
-            "POST",
-            false,
             token: token);
         return jToken["list"]?.ToObject<List<DeviceInfo>>();
     }
@@ -395,8 +389,6 @@ public class MiioClient
             {
                 fetch_share_dev = true
             },
-            "POST",
-            false,
             token: token);
         return jToken["homelist"]?.ToObject<List<HomeInfo>>();
     }
@@ -417,8 +409,6 @@ public class MiioClient
             {
                 home_id = homeId
             },
-            "POST",
-            false,
             token: token);
         return jToken["scene_info_list"]?.ToObject<List<SceneInfo>>();
     }
@@ -439,8 +429,6 @@ public class MiioClient
             {
                 { "params", properties }
             },
-            "POST",
-            false,
             token: token);
         return jToken.ToObject<List<DevicePropertyInfo>>();
     }
@@ -460,8 +448,6 @@ public class MiioClient
             {
                 { "params", properties }
             },
-            "POST",
-            false,
             token: token);
         return jToken.ToObject<List<DeviceSetPropertyResult>>();
     }

@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Ymiot.Core.Miio;
-using Ymiot.Core.Miot;
 
 namespace Ymiot.Test;
 
@@ -47,20 +46,6 @@ public class MiioClientTest
         var devices = await MiioClient.GetAllDevicesAsync();
         devices.Should().NotBeNullOrEmpty();
         Devices = devices;
-
-        var d = devices.First();
-        var spec = await MiotSpec.FromModelAsync(d.Model);
-        spec.Should().NotBeNull();
-        var service = spec.Services.FirstOrDefault(s => s.Siid == 1);
-        service.Should().NotBeNull();
-        var properties = service!.Properties.Select(p => new DeviceGetPropertyParam
-        {
-            Did = d.Did,
-            Siid = service.Siid,
-            Piid = p.Piid
-        }).ToArray();
-        var values = await MiioClient.GetDevicePropertyAsync(properties);
-        values.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -110,10 +95,10 @@ public class MiioClientTest
     [TestPriority(4)]
     public async void RoomListTest()
     {
-        var deviceList = await MiioClient.GetAllHomesAsync();
-        deviceList.Should().NotBeNullOrEmpty();
-        deviceList[0].Rooms.Should().NotBeNullOrEmpty();
-        Home = deviceList[0];
+        var rooms = await MiioClient.GetAllHomesAsync();
+        rooms.Should().NotBeNullOrEmpty();
+        rooms[0].Rooms.Should().NotBeNullOrEmpty();
+        Home = rooms[0];
     }
 
     [Fact]

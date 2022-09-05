@@ -10,6 +10,10 @@ public class RC4
     {
         var cnt = pwd.Length;
         var ksa = new byte[256];
+        for (var i = 0; i < ksa.Length; i++)
+        {
+            ksa[i] = (byte)i;
+        }
         var j = 0;
         for (var i = 0; i < 256; i++)
         {
