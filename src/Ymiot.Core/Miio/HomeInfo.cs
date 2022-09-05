@@ -1,0 +1,62 @@
+﻿using Newtonsoft.Json;
+
+namespace Ymiot.Core.Miio;
+
+/// <summary>
+/// 家信息
+/// </summary>
+public class HomeInfo
+{
+    /// <summary>
+    /// ID
+    /// </summary>
+    [JsonProperty("id")]
+    public string Id { get; private set; }
+
+    /// <summary>
+    /// 名称
+    /// </summary>
+    [JsonProperty("name")]
+    public string Name { get; private set; }
+
+    /// <summary>
+    /// 设备ID列表
+    /// </summary>
+    [JsonProperty("dids")]
+    public IReadOnlyList<string> Dids { get; private set; }
+
+    /// <summary>
+    /// 经度
+    /// </summary>
+    [JsonProperty("longitude")]
+    public double Longitude { get; private set; }
+
+    /// <summary>
+    /// 纬度
+    /// </summary>
+    [JsonProperty("latitude")]
+    public double Latitude { get; private set; }
+
+    /// <summary>
+    /// 城市ID
+    /// </summary>
+    [JsonProperty("city_id")]
+    public long CityId { get; private set; }
+
+    /// <summary>
+    /// 地址
+    /// </summary>
+    [JsonProperty("address")]
+    public string Address { get; private set; }
+
+    /// <summary>
+    /// 房间列表
+    /// </summary>
+    [JsonProperty("roomlist")]
+    public IReadOnlyList<RoomInfo> Rooms { get; private set; }
+
+    public override string ToString()
+    {
+        return $"{Name}({Dids?.Count ?? 0}) - {Id}";
+    }
+}
