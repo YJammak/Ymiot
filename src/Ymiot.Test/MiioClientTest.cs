@@ -12,7 +12,7 @@ public class MiioClientTest
     private static IReadOnlyList<DeviceInfo> Devices { get; set; }
     private static HomeInfo Home { get; set; }
 
-    private IConfiguration Configuration { get; set; }
+    private IConfiguration Configuration { get; }
 
     public MiioClientTest(IConfiguration configuration)
     {

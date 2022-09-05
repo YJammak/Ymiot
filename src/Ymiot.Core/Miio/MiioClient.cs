@@ -13,7 +13,7 @@ public class MiioClient
 {
     private const string UserAgent = "APP/com.xiaomi.mihome APPV/6.0.103 iosPassportSDK/3.9.0 iOS/14.4 miHSTS";
 
-    private const string DefaultApiUrl = "https://api.io.mi.com";
+    private const string DefaultApiUrl = "https://api.io.mi.com/app";
 
     /// <summary>
     /// 登录信息
@@ -195,7 +195,7 @@ public class MiioClient
         request.AddOrUpdateHeader("User-Agent", UserAgent);
         request.AddOrUpdateHeader("Content-Type", "application/x-www-form-urlencoded");
         request.AddOrUpdateHeader("x-xiaomi-protocal-flag-cli", "PROTOCAL-HTTP2");
-        request.AddOrUpdateHeader("Cookie", $"userId={LoginInfo.UserId};yetAnotherServiceToken={LoginInfo.ServiceToken};serviceToken={LoginInfo.ServiceToken};channel=MI_APP_STORE");
+        request.AddOrUpdateHeader("Cookie", $"PassportDeviceId={LoginInfo.DeviceId};userId={LoginInfo.UserId};yetAnotherServiceToken={LoginInfo.ServiceToken};serviceToken={LoginInfo.ServiceToken};channel=MI_APP_STORE;");
 
         return request;
     }
@@ -227,7 +227,7 @@ public class MiioClient
             Logout();
             throw new Exception("登录信息无效");
         }
-        return json;
+        return json["result"];
     }
 
     private async Task<string> PostAsync(
@@ -237,16 +237,18 @@ public class MiioClient
     {
         CheckLoginInfo(LoginInfo);
 
-        var data = GetParameters("POST", parameters);
+        var data = parameters["data"] as string;
 
         var nonce = GenerateNonce();
         var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, nonce);
         var signature = GenerateSignature(api, signedNonce, nonce, data);
 
+        parameters.Add("_nonce", nonce);
+        parameters.Add("signature", signature);
+
         var request = GetApiRequest(api);
-        request.AddParameter("_nonce", nonce);
-        request.AddParameter("data", data);
-        request.AddParameter("signature", signature);
+
+        AddParameters(request, parameters);
 
         var restClient = new RestClient();
 
@@ -267,19 +269,12 @@ public class MiioClient
         CancellationToken token = default)
     {
         var request = GetApiRequest(api);
+        AddParameters(request, parameters);
+
+        request.Method = method == "GET" ? Method.Get : Method.Post;
 
         var restClient = new RestClient();
-        RestResponse response;
-        if (method == "GET")
-        {
-            request.AddParameter("params", GetParameters(method, parameters));
-            response = await restClient.GetAsync(request, token);
-        }
-        else
-        {
-            request.AddParameter("data", GetParameters(method, parameters));
-            response = await restClient.PostAsync(request, token);
-        }
+        var response = await restClient.ExecuteAsync(request, token);
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
             Logout();
@@ -309,20 +304,14 @@ public class MiioClient
         request.AddOrUpdateHeader("Accept-Encoding", "identity");
 
         parameters = GetRc4Params(method, api, parameters);
+        AddParameters(request, parameters);
+
         var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, parameters["_nonce"].ToString());
 
+        request.Method = method == "GET" ? Method.Get : Method.Post;
+
         var restClient = new RestClient();
-        RestResponse response;
-        if (method == "GET")
-        {
-            request.AddParameter("params", GetParameters(method, parameters));
-            response = await restClient.GetAsync(request, token);
-        }
-        else
-        {
-            request.AddParameter("data", GetParameters(method, parameters));
-            response = await restClient.PostAsync(request, token);
-        }
+        var response = await restClient.ExecuteAsync(request, token);
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
             Logout();
@@ -346,24 +335,11 @@ public class MiioClient
         return content;
     }
 
-    private static string GetParameters(string method, IReadOnlyDictionary<string, object> parameters)
+    private static void AddParameters(RestRequest request, IReadOnlyDictionary<string, object> parameters)
     {
-        if (method == "GET")
+        foreach (var (key, value) in parameters)
         {
-            return parameters.Aggregate("", (s, s1) =>
-            {
-                var newValue = $"{s1.Key}={s1.Value}";
-                return string.IsNullOrWhiteSpace(s) ? newValue : $"{s}${newValue}";
-            });
-        }
-        else
-        {
-            return parameters.Aggregate("", (s, s1) =>
-            {
-                var newValue = $"{s1.Key}={s1.Value}";
-                return string.IsNullOrWhiteSpace(s) ? newValue : $"{s}${newValue}";
-            });
-            //return JsonHelper.SerializeObject(parameters);
+            request.AddOrUpdateParameter(key, value.ToString());
         }
     }
 
@@ -394,14 +370,14 @@ public class MiioClient
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
-            "home/device_list",
+            "/home/device_list",
             new
             {
-                getVirtualModel = true,
-                getHuamiDevices = 1,
-                get_split_device = false,
-                support_smart_home = true
+                getVirtualModel = false,
+                getHuamiDevices = 0
             },
+            "POST",
+            false,
             token: token);
         return jToken["list"]?.ToObject<List<DeviceInfo>>();
     }
@@ -414,11 +390,13 @@ public class MiioClient
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
-            "v2/homeroom/gethome",
+            "/v2/homeroom/gethome",
             new
             {
                 fetch_share_dev = true
             },
+            "POST",
+            false,
             token: token);
         return jToken["homelist"]?.ToObject<List<HomeInfo>>();
     }
@@ -434,11 +412,13 @@ public class MiioClient
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
-            "appgateway/miot/appsceneservice/AppSceneService/GetSceneList",
+            "/appgateway/miot/appsceneservice/AppSceneService/GetSceneList",
             new
             {
                 home_id = homeId
             },
+            "POST",
+            false,
             token: token);
         return jToken["scene_info_list"]?.ToObject<List<SceneInfo>>();
     }
@@ -454,11 +434,13 @@ public class MiioClient
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
-            "miotspec/prop/get",
+            "/miotspec/prop/get",
             new Dictionary<string, object>
             {
                 { "params", properties }
             },
+            "POST",
+            false,
             token: token);
         return jToken.ToObject<List<DevicePropertyInfo>>();
     }
@@ -473,11 +455,13 @@ public class MiioClient
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
-            "miotspec/prop/set",
+            "/miotspec/prop/set",
             new Dictionary<string, object>
             {
                 { "params", properties }
             },
+            "POST",
+            false,
             token: token);
         return jToken.ToObject<List<DeviceSetPropertyResult>>();
     }
