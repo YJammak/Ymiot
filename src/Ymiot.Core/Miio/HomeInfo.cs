@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Ymiot.Core.Utils;
 
 namespace Ymiot.Core.Miio;
 
@@ -19,11 +20,23 @@ public class HomeInfo
     [JsonProperty("name")]
     public string Name { get; private set; }
 
+    [JsonProperty("bssid")]
+    public string Bssid { get; private set; }
+
     /// <summary>
     /// 设备ID列表
     /// </summary>
     [JsonProperty("dids")]
     public IReadOnlyList<string> Dids { get; private set; }
+
+    [JsonProperty("shareflag")]
+    public int ShareFlag { get; private set; }
+
+    [JsonProperty("permit_level")]
+    public int PermitLevel { get; private set; }
+
+    [JsonProperty("status")]
+    public int Status { get; private set; }
 
     /// <summary>
     /// 经度
@@ -50,10 +63,21 @@ public class HomeInfo
     public string Address { get; private set; }
 
     /// <summary>
+    /// 创建时间
+    /// </summary>
+    [JsonProperty("create_time")]
+    [JsonConverter(typeof(UnixTimestampToDateTime))]
+    public DateTime CreateTime { get; private set; }
+
+    /// <summary>
     /// 房间列表
     /// </summary>
     [JsonProperty("roomlist")]
     public IReadOnlyList<RoomInfo> Rooms { get; private set; }
+
+
+    [JsonProperty("uid")]
+    public long Uid { get; private set; }
 
     public override string ToString()
     {

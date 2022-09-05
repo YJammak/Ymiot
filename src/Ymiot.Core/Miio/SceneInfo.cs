@@ -14,6 +14,18 @@ public class SceneInfo
     public string Id { get; private set; }
 
     /// <summary>
+    /// 用户ID
+    /// </summary>
+    [JsonProperty("uid")]
+    public string Uid { get; private set; }
+
+    /// <summary>
+    /// 家ID
+    /// </summary>
+    [JsonProperty("home_id")]
+    public string HomeId { get; private set; }
+
+    /// <summary>
     /// 场景名称
     /// </summary>
     [JsonProperty("name")]

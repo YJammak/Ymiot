@@ -369,8 +369,10 @@ public class MiioClient
             "/home/device_list",
             new
             {
-                getVirtualModel = false,
-                getHuamiDevices = 0
+                getVirtualModel = true,
+                getHuamiDevices = 1,
+                get_split_device = false,
+                support_smart_home = true
             },
             token: token);
         return jToken["list"]?.ToObject<List<DeviceInfo>>();
@@ -384,7 +386,7 @@ public class MiioClient
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
-            "/v2/homeroom/gethome",
+            "/homeroom/gethome",
             new
             {
                 fetch_share_dev = true
