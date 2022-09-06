@@ -11,14 +11,22 @@ namespace Ymiot.Core.Miio;
 /// </summary>
 public class MiioClient
 {
-    private const string UserAgent = "APP/com.xiaomi.mihome APPV/6.0.103 iosPassportSDK/3.9.0 iOS/14.4 miHSTS";
-
     private const string DefaultApiUrl = "https://api.io.mi.com/app";
+
+    private string UserAgent { get; }
+
+    private string AgentId { get; }
 
     /// <summary>
     /// 登录信息
     /// </summary>
     public LoginInfo LoginInfo { get; private set; }
+
+    public MiioClient()
+    {
+        AgentId = RandomUtil.RandomAgentId();
+        UserAgent = $"Android-7.1.1-1.0.0-ONEPLUS A3010-136-{AgentId} APP/xiaomi.smarthome APPV/62830";
+    }
 
     /// <summary>
     /// 登录
@@ -34,10 +42,14 @@ public class MiioClient
         string password,
         CancellationToken token = default)
     {
+        const string accountBase = "https://account.xiaomi.com";
+
         LoginInfo = null;
         var restClient = new RestClient();
 
-        var request = new RestRequest($"https://account.xiaomi.com/pass/serviceLogin?sid={sid}&_json=true");
+        var request = new RestRequest($"{accountBase}/pass/serviceLogin");
+        request.AddParameter("sid", sid);
+        request.AddParameter("_json", true);
         request.AddHeader("User-Agent", UserAgent);
 
         var response = restClient.Get(request);
@@ -49,15 +61,15 @@ public class MiioClient
 
         var content = JObject.Parse(response.Content![11..]);
 
-        request = new RestRequest("https://account.xiaomi.com/pass/serviceLoginAuth2");
+        request = new RestRequest($"{accountBase}/pass/serviceLoginAuth2");
         request.AddHeader("User-Agent", UserAgent);
-        request.AddParameter("qs", content.GetString("qs"));
-        request.AddParameter("sid", content.GetString("sid"));
-        request.AddParameter("_sign", content.GetString("_sign"));
-        request.AddParameter("callback", content.GetString("callback"));
         request.AddParameter("user", username);
         request.AddParameter("hash", SecurityUtil.GetMd5(password).ToUpper());
-        request.AddParameter("_json", "true");
+        request.AddParameter("callback", content.GetString("callback"));
+        request.AddParameter("sid", content.GetString("sid"));
+        request.AddParameter("qs", content.GetString("qs"));
+        request.AddParameter("_sign", content.GetString("_sign"));
+        request.AddQueryParameter("_json", "true");
 
         response = await restClient.PostAsync(request, token);
         if (!response.IsSuccessful)
@@ -73,6 +85,7 @@ public class MiioClient
             return LoginInfo;
         }
 
+        var deviceId = response.Cookies?.FirstOrDefault(c => c.Name == "deviceId")?.Value ?? AgentId;
         var nonce = content.GetString("nonce");
         var location = content.GetString("location");
         var userId = content.GetString("userId");
@@ -85,6 +98,7 @@ public class MiioClient
         }
 
         request = new RestRequest(location);
+        request.AddOrUpdateHeader("content-type", "application/x-www-form-urlencoded");
 
         response = restClient.Get(request);
         if (!response.IsSuccessful)
@@ -95,7 +109,7 @@ public class MiioClient
 
         var serviceToken = response.Cookies?.FirstOrDefault(c => c.Name == "serviceToken")?.Value;
         var successful = !string.IsNullOrEmpty(serviceToken);
-        LoginInfo = new LoginInfo(successful, successful ? "登录成功" : "未获取到serviceToken", sid, userId, RandomUtil.Random(16), serviceToken, securityToken);
+        LoginInfo = new LoginInfo(successful, successful ? "登录成功" : "未获取到serviceToken", sid, userId, deviceId, serviceToken, securityToken);
         return LoginInfo;
     }
 

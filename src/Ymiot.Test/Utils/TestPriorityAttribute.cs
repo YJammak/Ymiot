@@ -1,4 +1,4 @@
-﻿namespace Ymiot.Test;
+﻿namespace Ymiot.Test.Utils;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class TestPriorityAttribute : Attribute

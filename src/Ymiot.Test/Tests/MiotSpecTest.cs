@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using Ymiot.Core.Miot;
+using Ymiot.Test.Utils;
 
-namespace Ymiot.Test;
+namespace Ymiot.Test.Tests;
 
 [TestCaseOrderer("Ymiot.Test.PriorityOrderer", "Ymiot.Test")]
 public class MiotSpecTest

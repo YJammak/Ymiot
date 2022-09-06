@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Ymiot.Core.Utils;
 
-namespace Ymiot.Test;
+namespace Ymiot.Test.Tests;
 
 public class UnixTimestampToDateTimeTest
 {
@@ -34,6 +34,6 @@ public class UnixTimestampToDateTimeTest
         };
         var json = JsonHelper.SerializeObject(test);
         json.Should().NotBeNull();
-        json.Should().Contain(((long)((dateTime - DateTime.UnixEpoch).TotalSeconds)).ToString());
+        json.Should().Contain(((long)(dateTime - DateTime.UnixEpoch).TotalSeconds).ToString());
     }
 }

@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Ymiot.Core.Miio;
+using Ymiot.Test.Utils;
 
-namespace Ymiot.Test;
+namespace Ymiot.Test.Tests;
 
 [TestCaseOrderer("Ymiot.Test.PriorityOrderer", "Ymiot.Test")]
 public class MiioClientTest

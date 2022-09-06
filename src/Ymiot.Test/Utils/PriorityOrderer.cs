@@ -1,7 +1,7 @@
 ﻿using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Ymiot.Test;
+namespace Ymiot.Test.Utils;
 
 public class PriorityOrderer : ITestCaseOrderer
 {
@@ -13,7 +13,7 @@ public class PriorityOrderer : ITestCaseOrderer
         {
             var priority = 0;
 
-            foreach (var attr in testCase.TestMethod.Method.GetCustomAttributes((typeof(TestPriorityAttribute).AssemblyQualifiedName)))
+            foreach (var attr in testCase.TestMethod.Method.GetCustomAttributes(typeof(TestPriorityAttribute).AssemblyQualifiedName))
                 priority = attr.GetNamedArgument<int>("Priority");
 
             GetOrCreate(sortedMethods, priority).Add(testCase);
