@@ -3,6 +3,21 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
+        <PackageId>Ymiot.Core</PackageId>
+        <Authors>YJammak</Authors>
+        <Company>YJammak</Company>
+        <Product>MIoT API</Product>
+        <Copyright>© 2022 YJammak.</Copyright>
+        <Version>0.1.0</Version>
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <FileVersion>$(Version)</FileVersion>
+        <PackageTags>MIoT;API</PackageTags>
+        <Title>Ymiot.Core</Title>
+        <Description>米家相关API</Description>
+        <PackRelease>true</PackRelease>
+        <PackageProjectUrl>https://github.com/YJammak/Ymiot</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
