@@ -17,15 +17,24 @@ public class MiioClient
 
     private string AgentId { get; }
 
+    private string? Sid { get; set; }
+
+    private string? UserName { get; set; }
+
+    private string? Password { get; set; }
+
     /// <summary>
     /// 登录信息
     /// </summary>
     public LoginInfo? LoginInfo { get; private set; }
 
-    public MiioClient()
+    public MiioClient(string? sid = default, string? userName = default, string? password = default)
     {
         AgentId = RandomUtil.RandomAgentId();
         UserAgent = $"Android-7.1.1-1.0.0-ONEPLUS A3010-136-{AgentId} APP/xiaomi.smarthome APPV/62830";
+        Sid = sid;
+        UserName = userName;
+        Password = password;
     }
 
     /// <summary>
@@ -107,6 +116,9 @@ public class MiioClient
             return LoginInfo;
         }
 
+        UserName = username;
+        Password = password;
+
         var serviceToken = response.Cookies?.FirstOrDefault(c => c.Name == "serviceToken")?.Value;
         var successful = !string.IsNullOrEmpty(serviceToken);
         LoginInfo = new LoginInfo(successful, successful ? "登录成功" : "未获取到serviceToken", sid, userId, deviceId, serviceToken, securityToken);
@@ -126,10 +138,21 @@ public class MiioClient
         return WebUtility.UrlEncode(base64);
     }
 
-    private static void CheckLoginInfo(LoginInfo? loginInfo)
+    private async Task CheckLoginInfo(LoginInfo? loginInfo, CancellationToken token)
     {
-        if (loginInfo is not { IsSuccessful: true } || string.IsNullOrEmpty(loginInfo.ServiceToken))
-            throw new Exception("未登录，请登录后再试");
+        var count = 0;
+        while (loginInfo is not { IsSuccessful: true } || string.IsNullOrEmpty(loginInfo.ServiceToken))
+        {
+            if (count >= 3)
+                throw new Exception("登录失败，请重新登录");
+
+            if (string.IsNullOrWhiteSpace(Sid) || string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Password))
+                throw new Exception("未登录，请登录后再试");
+
+            await Task.Delay(1000, token);
+            loginInfo = await LoginAsync(Sid, UserName, Password, token);
+            count++;
+        }
     }
 
     private static string GenerateNonce()
@@ -219,7 +242,7 @@ public class MiioClient
     {
         var parameters = new Dictionary<string, object>();
         if (data != null)
-            parameters.Add("data", JsonHelper.SerializeObject(data));
+            parameters.Add("data", JsonHelper.SerializeObject(data)!);
 
         var raw = LoginInfo!.Sid != "xiaomiio";
         string content;
@@ -245,7 +268,7 @@ public class MiioClient
         Dictionary<string, object> parameters,
         CancellationToken token = default)
     {
-        CheckLoginInfo(LoginInfo);
+        await CheckLoginInfo(LoginInfo, token);
 
         var data = parameters["data"] as string;
 
