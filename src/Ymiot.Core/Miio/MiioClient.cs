@@ -20,7 +20,7 @@ public class MiioClient
     /// <summary>
     /// 登录信息
     /// </summary>
-    public LoginInfo LoginInfo { get; private set; }
+    public LoginInfo? LoginInfo { get; private set; }
 
     public MiioClient()
     {
@@ -86,10 +86,10 @@ public class MiioClient
         }
 
         var deviceId = response.Cookies?.FirstOrDefault(c => c.Name == "deviceId")?.Value ?? AgentId;
-        var nonce = content.GetString("nonce");
-        var location = content.GetString("location");
-        var userId = content.GetString("userId");
-        var securityToken = content.GetString("ssecurity");
+        var nonce = content.GetString("nonce")!;
+        var location = content.GetString("location")!;
+        var userId = content.GetString("userId")!;
+        var securityToken = content.GetString("ssecurity")!;
 
         if (sid != "xiaomiio")
         {
@@ -126,7 +126,7 @@ public class MiioClient
         return WebUtility.UrlEncode(base64);
     }
 
-    private static void CheckLoginInfo(LoginInfo loginInfo)
+    private static void CheckLoginInfo(LoginInfo? loginInfo)
     {
         if (loginInfo is not { IsSuccessful: true } || string.IsNullOrEmpty(loginInfo.ServiceToken))
             throw new Exception("未登录，请登录后再试");
@@ -164,7 +164,7 @@ public class MiioClient
         string nonce)
     {
         var path = url;
-        var index = path!.IndexOf("/app/", StringComparison.CurrentCulture);
+        var index = path.IndexOf("/app/", StringComparison.CurrentCulture);
         if (index >= 0)
             path = path[(index + 4)..];
 
@@ -182,7 +182,7 @@ public class MiioClient
     {
         var password = SecurityUtil.DecodeBase64(pwd);
         var data = Encoding.UTF8.GetBytes(value);
-        var rc4 = new RC4(password).Init1024().Crypt(data);
+        var rc4 = new Rc4(password).Init1024().Crypt(data);
         return SecurityUtil.GetBase64(rc4);
     }
 
@@ -190,7 +190,7 @@ public class MiioClient
     {
         var password = SecurityUtil.DecodeBase64(pwd);
         var data = SecurityUtil.DecodeBase64(value);
-        var rc4 = new RC4(password).Init1024().Crypt(data);
+        var rc4 = new Rc4(password).Init1024().Crypt(data);
         return Encoding.UTF8.GetString(rc4);
     }
 
@@ -205,14 +205,14 @@ public class MiioClient
         request.AddOrUpdateHeader("User-Agent", UserAgent);
         request.AddOrUpdateHeader("Content-Type", "application/x-www-form-urlencoded");
         request.AddOrUpdateHeader("x-xiaomi-protocal-flag-cli", "PROTOCAL-HTTP2");
-        request.AddOrUpdateHeader("Cookie", $"PassportDeviceId={LoginInfo.DeviceId};userId={LoginInfo.UserId};yetAnotherServiceToken={LoginInfo.ServiceToken};serviceToken={LoginInfo.ServiceToken};channel=MI_APP_STORE;");
+        request.AddOrUpdateHeader("Cookie", $"PassportDeviceId={LoginInfo!.DeviceId};userId={LoginInfo.UserId};yetAnotherServiceToken={LoginInfo.ServiceToken};serviceToken={LoginInfo.ServiceToken};channel=MI_APP_STORE;");
 
         return request;
     }
 
-    public async Task<JToken> RequestMiotApiAsync(
+    public async Task<JToken?> RequestMiotApiAsync(
         string api,
-        object data,
+        object? data,
         string method = "POST",
         bool crypt = true,
         CancellationToken token = default)
@@ -221,7 +221,7 @@ public class MiioClient
         if (data != null)
             parameters.Add("data", JsonHelper.SerializeObject(data));
 
-        var raw = LoginInfo.Sid != "xiaomiio";
+        var raw = LoginInfo!.Sid != "xiaomiio";
         string content;
         if (raw)
             content = await RequestRawAsync(api, parameters, method, token);
@@ -250,8 +250,8 @@ public class MiioClient
         var data = parameters["data"] as string;
 
         var nonce = GenerateNonce();
-        var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, nonce);
-        var signature = GenerateSignature(api, signedNonce, nonce, data);
+        var signedNonce = GenerateSignedNonce(LoginInfo!.SecurityToken!, nonce);
+        var signature = GenerateSignature(api, signedNonce, nonce, data!);
 
         parameters.Add("_nonce", nonce);
         parameters.Add("signature", signature);
@@ -316,7 +316,7 @@ public class MiioClient
         parameters = GetRc4Params(method, request.Resource, parameters);
         AddParameters(request, parameters);
 
-        var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, parameters["_nonce"].ToString());
+        var signedNonce = GenerateSignedNonce(LoginInfo!.SecurityToken!, parameters["_nonce"].ToString()!);
 
         request.Method = method == "GET" ? Method.Get : Method.Post;
 
@@ -359,14 +359,14 @@ public class MiioClient
         Dictionary<string, object> parameters)
     {
         var nonce = GenerateNonce();
-        var signedNonce = GenerateSignedNonce(LoginInfo.SecurityToken, nonce);
+        var signedNonce = GenerateSignedNonce(LoginInfo!.SecurityToken!, nonce);
         parameters["rc4_hash__"] = Sha1Sign(method, url, parameters, signedNonce);
         foreach (var (key, value) in parameters)
         {
-            parameters[key] = EncryptData(signedNonce, value.ToString());
+            parameters[key] = EncryptData(signedNonce, value.ToString()!);
         }
         parameters["signature"] = Sha1Sign(method, url, parameters, signedNonce);
-        parameters["ssecurity"] = LoginInfo.SecurityToken;
+        parameters["ssecurity"] = LoginInfo.SecurityToken!;
         parameters["_nonce"] = nonce;
         return parameters;
     }
@@ -376,7 +376,7 @@ public class MiioClient
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<IReadOnlyList<DeviceInfo>> GetAllDevicesAsync(
+    public async Task<IReadOnlyList<DeviceInfo>?> GetAllDevicesAsync(
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
@@ -389,14 +389,14 @@ public class MiioClient
                 support_smart_home = true
             },
             token: token);
-        return jToken["list"]?.ToObject<List<DeviceInfo>>();
+        return jToken?["list"]?.ToObject<List<DeviceInfo>>();
     }
 
     /// <summary>
     /// 获取所有家庭（包括房间信息）列表
     /// </summary>
     /// <returns></returns>
-    public async Task<IReadOnlyList<HomeInfo>> GetAllHomesAsync(
+    public async Task<IReadOnlyList<HomeInfo>?> GetAllHomesAsync(
         CancellationToken token = default)
     {
         var jToken = await RequestMiotApiAsync(
@@ -406,7 +406,7 @@ public class MiioClient
                 fetch_share_dev = true
             },
             token: token);
-        return jToken["homelist"]?.ToObject<List<HomeInfo>>();
+        return jToken?["homelist"]?.ToObject<List<HomeInfo>>();
     }
 
     /// <summary>
@@ -415,7 +415,7 @@ public class MiioClient
     /// <param name="homeId">家庭编号</param>
     /// <param name="token"></param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<SceneInfo>> GetAllScenesAsync(
+    public async Task<IReadOnlyList<SceneInfo>?> GetAllScenesAsync(
         string homeId,
         CancellationToken token = default)
     {
@@ -426,7 +426,7 @@ public class MiioClient
                 home_id = homeId
             },
             token: token);
-        return jToken["scene_info_list"]?.ToObject<List<SceneInfo>>();
+        return jToken?["scene_info_list"]?.ToObject<List<SceneInfo>>();
     }
 
     /// <summary>
@@ -435,7 +435,7 @@ public class MiioClient
     /// <param name="properties">想要获取的属性</param>
     /// <param name="token"></param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<DevicePropertyInfo>> GetDevicePropertyAsync(
+    public async Task<IReadOnlyList<DevicePropertyInfo>?> GetDevicePropertyAsync(
         IReadOnlyList<DeviceGetPropertyParam> properties,
         CancellationToken token = default)
     {
@@ -446,7 +446,7 @@ public class MiioClient
                 { "params", properties }
             },
             token: token);
-        return jToken.ToObject<List<DevicePropertyInfo>>();
+        return jToken?.ToObject<List<DevicePropertyInfo>>();
     }
 
     /// <summary>
@@ -454,7 +454,7 @@ public class MiioClient
     /// </summary>
     /// <param name="properties">属性与值</param>
     /// <param name="token"></param>
-    public async Task<IReadOnlyList<DeviceSetPropertyResult>> SetDevicePropertyAsync(
+    public async Task<IReadOnlyList<DeviceSetPropertyResult>?> SetDevicePropertyAsync(
         IReadOnlyList<DeviceSetPropertyParam> properties,
         CancellationToken token = default)
     {
@@ -465,6 +465,6 @@ public class MiioClient
                 { "params", properties }
             },
             token: token);
-        return jToken.ToObject<List<DeviceSetPropertyResult>>();
+        return jToken?.ToObject<List<DeviceSetPropertyResult>>();
     }
 }

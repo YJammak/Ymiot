@@ -5,7 +5,7 @@ namespace Ymiot.Core.Utils;
 
 public class ArrayToMiotValueRange : JsonConverter
 {
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
         if (value is not MiotValueRange valueRange)
             throw new FormatException("数据类型错误，无法完成转换");
@@ -18,7 +18,7 @@ public class ArrayToMiotValueRange : JsonConverter
         });
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         if (objectType != typeof(MiotValueRange) || reader.TokenType != JsonToken.StartArray)
             throw new FormatException("数据类型错误，无法完成转换");

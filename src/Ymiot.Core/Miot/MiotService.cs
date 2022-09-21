@@ -8,8 +8,8 @@ public class MiotService : Miot
     public int Siid => Iid;
 
     [JsonProperty("properties")]
-    public IReadOnlyList<MiotProperty> Properties { get; private set; }
+    public IReadOnlyList<MiotProperty>? Properties { get; private set; }
 
     [JsonProperty("actions")]
-    public IReadOnlyList<MiotAction> Actions { get; private set; }
+    public IReadOnlyList<MiotAction>? Actions { get; private set; }
 }

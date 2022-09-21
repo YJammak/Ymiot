@@ -8,8 +8,8 @@ public class MiotAction : Miot
     public int Aiid => Iid;
 
     [JsonProperty("in")]
-    public IReadOnlyList<int> Ins { get; private set; }
+    public IReadOnlyList<int>? Ins { get; private set; }
 
     [JsonProperty("out")]
-    public IReadOnlyList<int> Outs { get; private set; }
+    public IReadOnlyList<int>? Outs { get; private set; }
 }

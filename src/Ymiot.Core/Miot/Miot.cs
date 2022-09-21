@@ -48,20 +48,20 @@ public class Miot
     public int Iid { get; private set; }
 
     [JsonProperty("type")]
-    public string Type { get; private set; }
+    public string Type { get; private set; } = default!;
 
     [JsonProperty("description")]
-    public string Description { get; private set; }
+    public string Description { get; private set; } = default!;
 
     [JsonIgnore]
-    public string Name => FormatName(Type);
+    public string? Name => FormatName(Type);
 
     public override string ToString()
     {
         return $"{Iid} - {Description} - {Type}";
     }
 
-    public static string FormatName(string name)
+    public static string? FormatName(string name)
     {
         if (string.IsNullOrEmpty(name))
             return null;
@@ -70,7 +70,7 @@ public class Miot
         return Regex.Replace(name, @"\W+", "_").ToLower();
     }
 
-    public static string FormatDescName(string des, string name)
+    public static string? FormatDescName(string des, string name)
     {
         if (string.IsNullOrEmpty(des) || Regex.IsMatch(des, "[^x00-xff]"))
             return FormatName(name);
@@ -78,7 +78,7 @@ public class Miot
         return FormatName(des);
     }
 
-    public static string NameByType(string type)
+    public static string? NameByType(string type)
     {
         var array = $"{type}:::".Split(':');
         var name = array[3];

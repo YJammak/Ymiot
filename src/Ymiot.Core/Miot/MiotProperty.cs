@@ -8,19 +8,19 @@ public class MiotProperty : Miot
     public int Piid => Iid;
 
     [JsonProperty("format")]
-    public string Format { get; private set; }
+    public string Format { get; private set; } = default!;
 
     [JsonProperty("access")]
-    public IReadOnlyList<string> Accesses { get; private set; }
+    public IReadOnlyList<string> Accesses { get; private set; } = default!;
 
     [JsonProperty("unit")]
-    public string Unit { get; private set; }
+    public string Unit { get; private set; } = default!;
 
     [JsonProperty("value-list")]
-    public IReadOnlyList<MiotValueList> ValueList { get; private set; }
+    public IReadOnlyList<MiotValueList>? ValueList { get; private set; }
 
     [JsonProperty("value-range")]
-    public MiotValueRange ValueRange { get; private set; }
+    public MiotValueRange? ValueRange { get; private set; }
 
     [JsonIgnore]
     public bool Readable => Accesses?.Contains("read") ?? false;

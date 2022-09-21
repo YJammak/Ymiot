@@ -1,12 +1,12 @@
 ﻿namespace Ymiot.Core.Utils;
 
-public class RC4
+public class Rc4
 {
     private int Idx { get; set; }
     private int Jdx { get; set; }
     private byte[] Ksa { get; set; }
 
-    public RC4(byte[] pwd)
+    public Rc4(byte[] pwd)
     {
         var cnt = pwd.Length;
         var ksa = new byte[256];
@@ -45,7 +45,7 @@ public class RC4
         return o.ToArray();
     }
 
-    public RC4 Init1024()
+    public Rc4 Init1024()
     {
         Crypt(new byte[1024]);
         return this;

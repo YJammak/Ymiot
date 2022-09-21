@@ -11,7 +11,7 @@ public sealed class DeviceSetPropertyParam
     /// 设备ID(DID)
     /// </summary>
     [JsonProperty("did")]
-    public string Did { get; set; }
+    public string Did { get; set; } = default!;
 
     /// <summary>
     /// 类型ID(SIID)
@@ -29,5 +29,5 @@ public sealed class DeviceSetPropertyParam
     /// 属性值
     /// </summary>
     [JsonProperty("value")]
-    public object Value { get; set; }
+    public object Value { get; set; } = default!;
 }

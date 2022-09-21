@@ -4,7 +4,7 @@ using Ymiot.Test.Utils;
 
 namespace Ymiot.Test.Tests;
 
-[TestCaseOrderer("Ymiot.Test.PriorityOrderer", "Ymiot.Test")]
+[TestCaseOrderer("Ymiot.Test.Utils.PriorityOrderer", "Ymiot.Test")]
 public class MiotSpecTest
 {
     [Fact]
@@ -22,6 +22,6 @@ public class MiotSpecTest
     {
         var miotSpec = await MiotSpec.FromTypeAsync("urn:miot-spec-v2:device:air-conditioner:0000A004:lumi-acn05:1");
         miotSpec.Should().NotBeNull();
-        miotSpec.Services.Should().NotBeEmpty();
+        miotSpec!.Services.Should().NotBeEmpty();
     }
 }

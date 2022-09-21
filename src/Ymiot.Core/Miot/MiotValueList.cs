@@ -8,7 +8,7 @@ public class MiotValueList
     public int Value { get; private set; }
 
     [JsonProperty("description")]
-    public string Description { get; private set; }
+    public string Description { get; private set; } = default!;
 
     public override string ToString()
     {

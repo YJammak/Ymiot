@@ -4,7 +4,7 @@ namespace Ymiot.Core.Utils;
 
 
 /// <summary>
-///     Json辅助类（此类依赖Newtonsoft.Json库）
+/// Json辅助类（此类依赖Newtonsoft.Json库）
 /// </summary>
 public static class JsonHelper
 {
@@ -20,12 +20,12 @@ public static class JsonHelper
         }
     }
 
-    private static MethodInfo _serializeObjectMethodInfo;
-    private static MethodInfo _deserializeObjectMethodInfo;
-    private static MethodInfo _jsonParseMethodInfo;
-    private static MethodInfo _jsonToStringMethodInfo;
-    private static Type _isoDateTimeConverterType;
-    private static Type _jsonConverterType;
+    private static MethodInfo? _serializeObjectMethodInfo;
+    private static MethodInfo? _deserializeObjectMethodInfo;
+    private static MethodInfo? _jsonParseMethodInfo;
+    private static MethodInfo? _jsonToStringMethodInfo;
+    private static Type? _isoDateTimeConverterType;
+    private static Type? _jsonConverterType;
 
     /// <summary>
     ///     加载Newtonsoft.Json.dll
@@ -60,7 +60,7 @@ public static class JsonHelper
         if (type == null) return false;
         _jsonParseMethodInfo = type.GetMethod("Parse", new[] { typeof(string) });
         _jsonToStringMethodInfo =
-            type.GetMethod("ToString", new[] { jsonFormattingType, _jsonConverterType.MakeArrayType() });
+            type.GetMethod("ToString", new[] { jsonFormattingType!, _jsonConverterType.MakeArrayType() });
 
         return true;
     }
@@ -71,10 +71,9 @@ public static class JsonHelper
     /// <param name="o">对象</param>
     /// <param name="dateTimeFormat">时间格式</param>
     /// <returns>json字符串</returns>
-    public static string SerializeObject(object o, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
+    public static string? SerializeObject(object o, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
     {
-        return _serializeObjectMethodInfo.Invoke(null, new[] { o, GetIsoDateTimeConverterArray(dateTimeFormat) }) as
-            string;
+        return _serializeObjectMethodInfo?.Invoke(null, new[] { o, GetIsoDateTimeConverterArray(dateTimeFormat) }) as string;
     }
 
     /// <summary>
@@ -83,9 +82,9 @@ public static class JsonHelper
     /// <param name="o"></param>
     /// <param name="dateTimeFormat"></param>
     /// <returns></returns>
-    public static string SerializeObjectToFormatJson(object o, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
+    public static string? SerializeObjectToFormatJson(object o, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
     {
-        return FormatJson(SerializeObject(o, dateTimeFormat));
+        return FormatJson(SerializeObject(o, dateTimeFormat)!);
     }
 
     /// <summary>
@@ -95,9 +94,9 @@ public static class JsonHelper
     /// <param name="json">json字符串(eg.{"ID":"112","Name":"石子儿"})</param>
     /// <param name="dateTimeFormat">时间格式</param>
     /// <returns>对象实体</returns>
-    public static T DeserializeToObject<T>(string json, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss") where T : class
+    public static T? DeserializeToObject<T>(string json, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss") where T : class
     {
-        return _deserializeObjectMethodInfo.MakeGenericMethod(typeof(T))
+        return _deserializeObjectMethodInfo?.MakeGenericMethod(typeof(T))
             .Invoke(null, new object[] { json, GetIsoDateTimeConverterArray(dateTimeFormat) }) as T;
     }
 
@@ -108,7 +107,7 @@ public static class JsonHelper
     /// <param name="filePath"></param>
     /// <param name="dateTimeFormat"></param>
     /// <returns></returns>
-    public static T LoadFromFileToObject<T>(string filePath, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
+    public static T? LoadFromFileToObject<T>(string filePath, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
         where T : class
     {
         var data = File.ReadAllText(filePath);
@@ -122,10 +121,10 @@ public static class JsonHelper
     /// <param name="json">json数组字符串(eg.[{"ID":"112","Name":"石子儿"}])</param>
     /// <param name="dateTimeFormat">时间格式</param>
     /// <returns>对象实体集合</returns>
-    public static List<T> DeserializeToList<T>(string json, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
+    public static List<T>? DeserializeToList<T>(string json, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
         where T : class
     {
-        return _deserializeObjectMethodInfo.MakeGenericMethod(typeof(List<T>)).Invoke(null,
+        return _deserializeObjectMethodInfo?.MakeGenericMethod(typeof(List<T>)).Invoke(null,
             new object[] { json, GetIsoDateTimeConverterArray(dateTimeFormat) }) as List<T>;
     }
 
@@ -136,7 +135,7 @@ public static class JsonHelper
     /// <param name="filePath"></param>
     /// <param name="dateTimeFormat"></param>
     /// <returns></returns>
-    public static List<T> LoadFromFileToList<T>(string filePath, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
+    public static List<T>? LoadFromFileToList<T>(string filePath, string dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
         where T : class
     {
         var data = File.ReadAllText(filePath);
@@ -162,10 +161,10 @@ public static class JsonHelper
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static string FormatJson(string json)
+    public static string? FormatJson(string json)
     {
-        var jt = _jsonParseMethodInfo.Invoke(null, new object[] { json });
-        return _jsonToStringMethodInfo.Invoke(jt, new object[] { 1, null }) as string;
+        var jt = _jsonParseMethodInfo?.Invoke(null, new object[] { json });
+        return _jsonToStringMethodInfo?.Invoke(jt, new object?[] { 1, null }) as string;
     }
 
     /// <summary>
@@ -173,10 +172,10 @@ public static class JsonHelper
     /// </summary>
     /// <param name="json"></param>
     /// <returns></returns>
-    public static string UnFormatJson(string json)
+    public static string? UnFormatJson(string json)
     {
-        var jt = _jsonParseMethodInfo.Invoke(null, new object[] { json });
-        return _jsonToStringMethodInfo.Invoke(jt, new object[] { 0, null }) as string;
+        var jt = _jsonParseMethodInfo?.Invoke(null, new object[] { json });
+        return _jsonToStringMethodInfo?.Invoke(jt, new object?[] { 0, null }) as string;
     }
 
     private static Array GetIsoDateTimeConverterArray(string dateTimeFormat)
@@ -184,7 +183,7 @@ public static class JsonHelper
         if (_jsonConverterType == null)
             throw new Exception("未加载【Newtonsoft.Json.dll】,请确保添加了该动态库");
 
-        dynamic instance = Activator.CreateInstance(_isoDateTimeConverterType);
+        dynamic? instance = Activator.CreateInstance(_isoDateTimeConverterType!);
         if (instance == null)
             throw new Exception("创建实例失败");
         instance.DateTimeFormat = dateTimeFormat;

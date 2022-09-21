@@ -11,7 +11,7 @@ public class DeviceGetPropertyParam
     /// 设备ID(DID)
     /// </summary>
     [JsonProperty("did")]
-    public string Did { get; set; }
+    public string Did { get; set; } = default!;
 
     /// <summary>
     /// 类型ID(SIID)

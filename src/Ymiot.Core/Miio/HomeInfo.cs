@@ -12,22 +12,22 @@ public class HomeInfo
     /// ID
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; private set; }
+    public string Id { get; private set; } = default!;
 
     /// <summary>
     /// 名称
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
     [JsonProperty("bssid")]
-    public string Bssid { get; private set; }
+    public string Bssid { get; private set; } = default!;
 
     /// <summary>
     /// 设备ID列表
     /// </summary>
     [JsonProperty("dids")]
-    public IReadOnlyList<string> Dids { get; private set; }
+    public IReadOnlyList<string>? Dids { get; private set; }
 
     [JsonProperty("shareflag")]
     public int ShareFlag { get; private set; }
@@ -60,7 +60,7 @@ public class HomeInfo
     /// 地址
     /// </summary>
     [JsonProperty("address")]
-    public string Address { get; private set; }
+    public string Address { get; private set; } = default!;
 
     /// <summary>
     /// 创建时间
@@ -73,7 +73,7 @@ public class HomeInfo
     /// 房间列表
     /// </summary>
     [JsonProperty("roomlist")]
-    public IReadOnlyList<RoomInfo> Rooms { get; private set; }
+    public IReadOnlyList<RoomInfo>? Rooms { get; private set; }
 
 
     [JsonProperty("uid")]

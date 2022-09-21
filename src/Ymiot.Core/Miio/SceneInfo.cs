@@ -11,31 +11,31 @@ public class SceneInfo
     /// 场景ID
     /// </summary>
     [JsonProperty("scene_id")]
-    public string Id { get; private set; }
+    public string Id { get; private set; } = default!;
 
     /// <summary>
     /// 用户ID
     /// </summary>
     [JsonProperty("uid")]
-    public string Uid { get; private set; }
+    public string Uid { get; private set; } = default!;
 
     /// <summary>
     /// 家ID
     /// </summary>
     [JsonProperty("home_id")]
-    public string HomeId { get; private set; }
+    public string HomeId { get; private set; } = default!;
 
     /// <summary>
     /// 场景名称
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
     /// <summary>
     /// 模板ID
     /// </summary>
     [JsonProperty("template_id")]
-    public string TemplateId { get; private set; }
+    public string TemplateId { get; private set; } = default!;
 
     /// <summary>
     /// 类型
@@ -47,7 +47,7 @@ public class SceneInfo
     /// 本地设备
     /// </summary>
     [JsonProperty("local_dev")]
-    public string LocalDev { get; private set; }
+    public string LocalDev { get; private set; } = default!;
 
     /// <summary>
     /// 是否激活
@@ -62,7 +62,7 @@ public class SceneInfo
     public bool CommonUse { get; private set; }
 
     [JsonProperty("timespan")]
-    public string Timespan { get; private set; }
+    public string Timespan { get; private set; } = default!;
 
     public override string ToString()
     {

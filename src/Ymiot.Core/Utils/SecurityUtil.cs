@@ -50,7 +50,7 @@ public static class SecurityUtil
     {
         var pwd = DecodeBase64(password);
         var dat = DecodeBase64(data);
-        var bytes = new RC4(pwd).Init1024().Crypt(dat);
+        var bytes = new Rc4(pwd).Init1024().Crypt(dat);
         return Encoding.UTF8.GetString(bytes);
     }
 }

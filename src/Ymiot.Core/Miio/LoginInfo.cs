@@ -10,4 +10,4 @@
 /// <param name="DeviceId">设备ID</param>
 /// <param name="ServiceToken">服务Token</param>
 /// <param name="SecurityToken">安全Token</param>
-public record LoginInfo(bool IsSuccessful, string Message, string Sid, string UserId = default, string DeviceId = default, string ServiceToken = default, string SecurityToken = default);
+public record LoginInfo(bool IsSuccessful, string Message, string Sid, string? UserId = default, string? DeviceId = default, string? ServiceToken = default, string? SecurityToken = default);

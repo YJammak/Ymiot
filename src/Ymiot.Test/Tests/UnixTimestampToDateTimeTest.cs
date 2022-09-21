@@ -21,7 +21,7 @@ public class UnixTimestampToDateTimeTest
         var json = $"{{\"time\": {timestamp:F0}}}";
         var test = JsonHelper.DeserializeToObject<TestClass>(json);
         test.Should().NotBeNull();
-        test.DateTime.Should().BeCloseTo(dateTime, TimeSpan.FromSeconds(1));
+        test!.DateTime.Should().BeCloseTo(dateTime, TimeSpan.FromSeconds(1));
     }
 
     [Fact]

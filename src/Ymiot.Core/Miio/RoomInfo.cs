@@ -12,28 +12,28 @@ public class RoomInfo
     /// 房间ID
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; private set; }
+    public string Id { get; private set; } = default!;
 
     /// <summary>
     /// 房间名称
     /// </summary>
     [JsonProperty("name")]
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
     [JsonProperty("bssid")]
-    public string Bssid { get; private set; }
+    public string Bssid { get; private set; } = default!;
 
     /// <summary>
     /// 父名称
     /// </summary>
     [JsonProperty("parentid")]
-    public string ParentId { get; private set; }
+    public string ParentId { get; private set; } = default!;
 
     /// <summary>
     /// 设备ID列表
     /// </summary>
     [JsonProperty("dids")]
-    public IReadOnlyList<string> Dids { get; private set; }
+    public IReadOnlyList<string>? Dids { get; private set; }
 
     [JsonProperty("shareflag")]
     public int ShareFlag { get; private set; }

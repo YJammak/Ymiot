@@ -12,7 +12,7 @@ public class DevicePropertyInfo
     /// 设备ID(DID)
     /// </summary>
     [JsonProperty("did")]
-    public string Did { get; private set; }
+    public string Did { get; private set; } = default!;
 
     /// <summary>
     /// 类型ID(SIID)
@@ -30,7 +30,7 @@ public class DevicePropertyInfo
     /// 属性值
     /// </summary>
     [JsonProperty("value")]
-    public object Value { get; private set; }
+    public object Value { get; private set; } = default!;
 
     /// <summary>
     /// 更新时间

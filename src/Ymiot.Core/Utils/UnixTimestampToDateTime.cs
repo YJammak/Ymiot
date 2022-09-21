@@ -4,7 +4,7 @@ namespace Ymiot.Core.Utils;
 
 public class UnixTimestampToDateTime : JsonConverter
 {
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
         if (value is not DateTime dateTime)
             throw new FormatException("数据类型错误，无法完成转换");
@@ -13,7 +13,7 @@ public class UnixTimestampToDateTime : JsonConverter
         writer.WriteValue((long)timestamp);
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
         if (objectType != typeof(DateTime) ||
             !long.TryParse(reader.Value?.ToString(), out var value))
